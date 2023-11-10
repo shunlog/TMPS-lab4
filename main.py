@@ -24,7 +24,7 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO,
                         format='%(levelname)s: %(message)s')
 
-    doc = Document(DocumentContent([
+    buf = Buffer(Document(DocumentContent([
         Paragraph("This is the Introduction"),
         Heading("First heading", 1, [
             Paragraph("Inside heading"),
@@ -33,16 +33,20 @@ if __name__ == '__main__':
                 ListItem("Item 2")
             ])
         ])
-    ]))
-
-    ic(list(doc.content))
+    ])))
 
     o1 = GUI()
     o2 = Collaborator()
+    buf.doc.register_observer(o1)
+    buf.doc.register_observer(o2)
 
-    doc.register_observer(o1)
-    doc.register_observer(o2)
+    ic(list(buf.doc.content))
 
-    doc.edit()
+    buf.edit()
+    ic(list(buf.doc.content))
 
-    ic(list(doc.content))
+    buf.undo()
+    ic(list(buf.doc.content))
+
+    buf.undo()
+    ic(list(buf.doc.content))

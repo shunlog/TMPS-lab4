@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import logging
+import copy
 from dataclasses import dataclass, field
 from typing import List, Tuple, Any, Union
 
@@ -52,7 +53,7 @@ class Heading(IterableTextElem):
     level: int
     items: List[Union[Paragraph, 'Heading', ListElem]] = field(default_factory=list, repr=False)
 
-@dataclass
+@dataclass()
 class DocumentContent(IterableElem):
     items: List[Union[Paragraph, Heading, ListElem]] = field(default_factory=list)
 
@@ -63,7 +64,40 @@ class Document(Subject):
         super().__init__(obs)
         self.content = content
 
-    def edit(self) -> None:
-        logging.info("Edited document")
+    def append_heading(self) -> None:
         self.content.items.append(Heading("New heading", 1))
         self.notify_observers()
+
+    def set_state(self, state):
+        self.content = state
+        self.notify_observers()
+
+    def get_state(self):
+        return copy.deepcopy(self.content)
+
+
+class Buffer:
+    def __init__(self, doc: Document):
+        self.doc = doc
+        self.undo_hist = []
+
+    def __save_state(self):
+        self.undo_hist.append(self.doc.get_state())
+
+    def __undo_state(self):
+        try:
+            self.doc.set_state(self.undo_hist.pop())
+        except:
+            raise RuntimeError("Nothing to undo")
+
+    def edit(self):
+        self.__save_state()
+        self.doc.append_heading()
+        logging.info("Made edit")
+
+    def undo(self):
+        try:
+            self.__undo_state()
+            logging.info("Undo edit")
+        except:
+            logging.info("Nothing to undo")
