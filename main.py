@@ -1,23 +1,12 @@
 #!/usr/bin/env python3
 from typing import List, Tuple, Any, Union
 import logging
+from icecream import ic
 
 from observer import Observer, Subject
 from document import *
-from icecream import ic
-
-
-class GUI(Observer):
-    def update(self, *args: Any) -> None:
-        logging.info("Notified GUI")
-
-
-class Collaborator(Observer):
-    def __init__(self, name: str = "Anonymous"):
-        self.name = name
-
-    def update(self, *args: Any) -> None:
-        logging.info(f"Notified collaborator '{self.name}'")
+from gui import GUI
+from collab import Collaborator
 
 
 if __name__ == '__main__':
